@@ -1,7 +1,6 @@
 import Footer from '@/components/Footer'
 import Link from 'next/link'
-
-
+import { Footprints, Palette, ShieldCheck } from 'lucide-react'
 
 export default function HomePage() {
   return (
@@ -38,9 +37,10 @@ export default function HomePage() {
 
       {/* Quick Access Grid */}
       <section className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Curated Thrift */}
         <div className="p-6 bg-white border border-stone-200 rounded-xl space-y-3">
-          <div className="w-10 h-10 bg-amber-100 text-amber-900 rounded-lg flex items-center justify-center font-bold text-lg">
-            👞
+          <div className="w-10 h-10 bg-amber-100 text-amber-900 rounded-lg flex items-center justify-center">
+            <Footprints className="w-5 h-5 text-amber-800" />
           </div>
           <h3 className="font-display font-bold text-lg uppercase tracking-tight">Curated Clarks Thrift</h3>
           <p className="text-xs text-stone-600 leading-relaxed">
@@ -51,9 +51,10 @@ export default function HomePage() {
           </Link>
         </div>
 
+        {/* Suede Dye Renewal */}
         <div className="p-6 bg-white border border-stone-200 rounded-xl space-y-3">
-          <div className="w-10 h-10 bg-amber-100 text-amber-900 rounded-lg flex items-center justify-center font-bold text-lg">
-            🎨
+          <div className="w-10 h-10 bg-amber-100 text-amber-900 rounded-lg flex items-center justify-center">
+            <Palette className="w-5 h-5 text-amber-800" />
           </div>
           <h3 className="font-display font-bold text-lg uppercase tracking-tight">Suede Dye Renewal</h3>
           <p className="text-xs text-stone-600 leading-relaxed">
@@ -64,16 +65,17 @@ export default function HomePage() {
           </Link>
         </div>
 
+        {/* Hand-Picked Quality (Replaced Admin Card) */}
         <div className="p-6 bg-white border border-stone-200 rounded-xl space-y-3">
-          <div className="w-10 h-10 bg-stone-100 text-stone-900 rounded-lg flex items-center justify-center font-bold text-lg">
-            ⚙️
+          <div className="w-10 h-10 bg-amber-100 text-amber-900 rounded-lg flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5 text-amber-800" />
           </div>
-          <h3 className="font-display font-bold text-lg uppercase tracking-tight">Inventory Admin</h3>
+          <h3 className="font-display font-bold text-lg uppercase tracking-tight">Hand-Picked Quality</h3>
           <p className="text-xs text-stone-600 leading-relaxed">
-            Add new village shoe finds, manage pricing, upload photos, and update suede dyeing service queues.
+            Every pair is individually inspected for genuine crepe soles, pristine suede texture, and structural integrity.
           </p>
-          <Link href="/admin/inventory" className="inline-block text-xs font-bold text-stone-900 hover:underline">
-            Open Dashboard →
+          <Link href="/products" className="inline-block text-xs font-bold text-amber-700 hover:underline">
+            Learn Our Process →
           </Link>
         </div>
       </section>

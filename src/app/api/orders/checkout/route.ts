@@ -3,56 +3,77 @@ import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
-    const formData = await req.formData()
-    const supabase = await createClient()
+    const body = await req.json()
+    const {
+      productId,
+      phone,
+      email,
+      address,
+      depositAmount,
+      balanceDue,
+      userId,
+    } = body
 
-    const email = formData.get('email') as string
-    const phone = formData.get('phone') as string
-    const address = formData.get('address') as string
-    const itemType = formData.get('itemType') as 'THRIFT_SHOES' | 'SUEDE_DYE_SERVICE'
-
-    // 1. Create main order entry
-    const { data: order, error: orderErr } = await supabase
-      .from('orders')
-      .insert([
-        {
-          customer_email: email,
-          customer_phone: phone,
-          shipping_address: address,
-          total_amount: itemType === 'SUEDE_DYE_SERVICE' ? 25.00 : parseFloat(formData.get('price') as string),
-          payment_status: 'PAID',
-          service_status: itemType === 'SUEDE_DYE_SERVICE' ? 'WAITING_FOR_PAIR' : null,
-        },
-      ])
-      .select()
-      .single()
-
-    if (orderErr) throw orderErr
-
-    // 2. Insert line item
-    const { error: itemErr } = await supabase.from('order_items').insert([
-      {
-        order_id: order.id,
-        type: itemType,
-        product_id: itemType === 'THRIFT_SHOES' ? formData.get('productId') : null,
-        dye_color: itemType === 'SUEDE_DYE_SERVICE' ? formData.get('dyeColor') : null,
-        shoe_model_note: formData.get('shoeModelNote') || null,
-        price: order.total_amount,
-      },
-    ])
-
-    if (itemErr) throw itemErr
-
-    // 3. Update product status if buying thrift shoe
-    if (itemType === 'THRIFT_SHOES') {
-      await supabase
-        .from('products')
-        .update({ status: 'SOLD' })
-        .eq('id', formData.get('productId'))
+    if (!productId || !phone || !address) {
+      return NextResponse.json(
+        { error: 'Missing required fields: phone, address, or product.' },
+        { status: 400 }
+      )
     }
 
-    return NextResponse.json({ success: true, orderId: order.id })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const supabase = await createClient()
+
+    // 1. Verify product availability
+    const { data: product, error: productError } = await supabase
+      .from('products')
+      .select('id, price, status')
+      .eq('id', productId)
+      .single()
+
+    if (productError || !product) {
+      return NextResponse.json({ error: 'Product not found.' }, { status: 404 })
+    }
+
+    if (product.status === 'SOLD') {
+      return NextResponse.json({ error: 'Sorry, this pair is already sold!' }, { status: 400 })
+    }
+
+    const fullPrice = typeof product.price === 'string' ? parseFloat(product.price) : product.price
+    const computedDeposit = depositAmount || Math.ceil(fullPrice / 2)
+    const computedBalance = balanceDue || (fullPrice - computedDeposit)
+    const resolvedEmail = email || `guest_${Date.now()}@mconnect.local`
+
+    // 2. Save order linked to user_id if logged in, or null if guest
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .insert({
+        product_id: productId,
+        user_id: userId || null,
+        phone_number: phone,
+        customer_phone: phone,
+        customer_email: resolvedEmail,
+        shipping_address: address,
+        total_amount: fullPrice,
+        deposit_amount: computedDeposit,
+        balance_due: computedBalance,
+        deposit_status: 'PENDING',
+      })
+      .select('id')
+      .single()
+
+    if (orderError) {
+      console.error('Supabase Order Insert Error:', orderError)
+      return NextResponse.json({ error: orderError.message }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      orderId: order.id,
+      depositAmount: computedDeposit,
+      balanceDue: computedBalance,
+    })
+  } catch (err: any) {
+    console.error('Checkout API Route Error:', err)
+    return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 })
   }
 }

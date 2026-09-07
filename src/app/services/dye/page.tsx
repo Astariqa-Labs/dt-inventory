@@ -11,6 +11,8 @@ const DYE_COLORS = [
 ]
 
 const FIXED_SERVICE_AMOUNT = 3250 // KES
+const DEPOSIT_AMOUNT = Math.ceil(FIXED_SERVICE_AMOUNT / 2) // KES 1,625
+const BALANCE_DUE = FIXED_SERVICE_AMOUNT - DEPOSIT_AMOUNT  // KES 1,625
 
 export default function SuedeDyeServicePage() {
   const [selectedColor, setSelectedColor] = useState('NAVY_BLUE')
@@ -24,32 +26,50 @@ export default function SuedeDyeServicePage() {
 
     const form = e.currentTarget
     const formData = new FormData(form)
-    formData.set('dyeColor', selectedColor)
-    formData.set('itemType', 'SUEDE_DYE_SERVICE')
+
+    // Build plain JSON payload matching /api/orders/checkout requirements
+    const payload = {
+      phone: formData.get('phone') as string,
+      email: formData.get('email') as string,
+      address: formData.get('address') as string,
+      shoeModelNote: formData.get('shoeModelNote') as string,
+      dyeColor: selectedColor,
+      itemType: 'SUEDE_DYE_SERVICE',
+      totalAmount: FIXED_SERVICE_AMOUNT,
+      depositAmount: DEPOSIT_AMOUNT,
+      balanceDue: BALANCE_DUE,
+    }
 
     try {
-      // 1. Create order record in Supabase
+      // 1. Send JSON body to checkout API
       const orderRes = await fetch('/api/orders/checkout', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       })
 
-      const orderData = await orderRes.json()
+      const rawText = await orderRes.text()
+      let orderData: any = {}
+
+      try {
+        orderData = JSON.parse(rawText)
+      } catch {
+        throw new Error(`Server returned invalid response (Status ${orderRes.status})`)
+      }
 
       if (!orderRes.ok) {
         throw new Error(orderData.error || 'Failed to create order.')
       }
 
-      // 2. Trigger M-Pesa STK Push
-      setStatusMessage('Sending M-Pesa payment prompt to your phone...')
+      // 2. Trigger M-Pesa STK Push for 50% deposit
+      setStatusMessage(`Sending M-Pesa prompt for KES ${DEPOSIT_AMOUNT.toLocaleString()} deposit...`)
 
-      const phone = formData.get('phone') as string
       const stkRes = await fetch('/api/payments/stkpush', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone,
-          amount: FIXED_SERVICE_AMOUNT,
+          phone: payload.phone,
+          amount: DEPOSIT_AMOUNT,
           orderId: orderData.orderId,
         }),
       })
@@ -57,13 +77,13 @@ export default function SuedeDyeServicePage() {
       const stkData = await stkRes.json()
 
       if (stkData.ResponseCode === '0') {
-        setStatusMessage('PIN prompt sent! Check your phone to complete payment.')
+        setStatusMessage('PIN prompt sent! Check your phone to approve the deposit.')
         form.reset()
       } else {
-        setStatusMessage('Could not trigger M-Pesa. Please check your phone number.')
+        setStatusMessage('Could not trigger M-Pesa. Please verify phone number.')
       }
     } catch (err: any) {
-      console.error(err)
+      console.error('Service Checkout Error:', err)
       setStatusMessage(`Error: ${err.message}`)
     } finally {
       setSubmitting(false)
@@ -71,7 +91,7 @@ export default function SuedeDyeServicePage() {
   }
 
   return (
-    <main className="min-h-screen bg-stone-50 text-stone-900 py-12 px-6">
+    <main className="min-h-screen bg-stone-50 text-stone-900 py-12 px-6 font-sans">
       <div className="max-w-3xl mx-auto space-y-10">
         
         {/* Header Section */}
@@ -97,6 +117,22 @@ export default function SuedeDyeServicePage() {
         {/* Booking Form */}
         <form onSubmit={handleCheckoutAndPay} className="bg-white border border-stone-200 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
           
+          {/* Price Breakdown Badge */}
+          <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-xs font-mono space-y-1">
+            <div className="flex justify-between text-stone-500">
+              <span>Full Service Fee:</span>
+              <span>KES {FIXED_SERVICE_AMOUNT.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-amber-800 font-bold">
+              <span>Pay Now (50% Deposit):</span>
+              <span>KES {DEPOSIT_AMOUNT.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-stone-500">
+              <span>Balance on Delivery:</span>
+              <span>KES {BALANCE_DUE.toLocaleString()}</span>
+            </div>
+          </div>
+
           {/* Shoe Model Note */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
@@ -165,13 +201,13 @@ export default function SuedeDyeServicePage() {
                 type="tel"
                 required
                 placeholder="0712345678 or 254712345678"
-                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-amber-600 focus:bg-white text-stone-900 placeholder-stone-400 transition"
+                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-amber-600 focus:bg-white text-stone-900 placeholder-stone-400 transition font-mono"
               />
             </div>
 
             <div className="sm:col-span-2">
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
-                Return Delivery Address / Drop-off Location
+                Pickup / Return Delivery Location
               </label>
               <textarea
                 name="address"
@@ -197,7 +233,9 @@ export default function SuedeDyeServicePage() {
             disabled={submitting}
             className="w-full py-4 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-extrabold uppercase tracking-wider rounded-xl transition text-xs shadow-md cursor-pointer active:scale-[0.99]"
           >
-            {submitting ? 'Processing Order...' : `Pay via M-Pesa — KES ${FIXED_SERVICE_AMOUNT.toLocaleString()}`}
+            {submitting
+              ? 'Processing Order...'
+              : `Pay KES ${DEPOSIT_AMOUNT.toLocaleString()} Deposit via M-Pesa`}
           </button>
         </form>
 

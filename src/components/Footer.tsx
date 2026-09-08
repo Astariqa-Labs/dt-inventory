@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
           <p className="font-display font-extrabold uppercase text-stone-100 text-sm tracking-tight">
-            Deutronomy<span className="text-amber-500">.</span>
+            Deuteronomy<span className="text-amber-500">.</span>
           </p>
           <p className="mt-1 text-stone-400">Curated village thrift & professional suede restoration.</p>
         </div>

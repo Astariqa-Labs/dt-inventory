@@ -38,7 +38,7 @@ export default async function ProductsPage() {
           {/* Exclusive Sourcing Action */}
           <div className="flex items-center gap-3 bg-white border border-stone-200 p-2 rounded-2xl shadow-sm shrink-0">
             <a
-              href="https://wa.me/?text=Hi%20Deutronomy,%20I'm%20looking%20for%20a%20specific%20Clarks%20size/model%20from%20the%20next%20village%20drop."
+              href="https://wa.me/?text=Hi%20Deuteronomy,%20I'm%20looking%20for%20a%20specific%20Clarks%20size/model%20from%20the%20next%20village%20drop."
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition shadow-sm"

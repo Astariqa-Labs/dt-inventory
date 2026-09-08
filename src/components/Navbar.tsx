@@ -40,7 +40,7 @@ export default function Navbar() {
 
           <div className="flex flex-col">
             <span className="font-display text-xl font-extrabold tracking-tight uppercase text-stone-900 leading-none">
-              Deutronomy<span className="text-amber-700">.</span>
+              Deuteronomy<span className="text-amber-700">.</span>
             </span>
             <span className="text-[10px] font-bold tracking-widest text-stone-500 uppercase mt-1">
               Clarks Thrift & Suede

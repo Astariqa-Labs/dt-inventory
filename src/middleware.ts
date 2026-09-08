@@ -1,4 +1,3 @@
-// middleware.ts
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
@@ -7,10 +6,9 @@ export async function middleware(request: NextRequest) {
     request: { headers: request.headers },
   })
 
-  const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  // Exit early to prevent 500 MIDDLEWARE_INVOCATION_FAILED
   if (!supabaseUrl || !supabaseAnonKey || !supabaseUrl.startsWith('http')) {
     console.error('Middleware execution skipped: Missing or invalid Supabase env vars.')
     return response

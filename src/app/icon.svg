@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+  <!-- Outer Monochromatic Chevron D -->
+  <path 
+    d="M 32 32 H 160 C 200 32 224 64 224 128 C 224 192 200 224 160 224 H 32 V 32 Z M 80 80 V 176 H 152 C 168 176 176 160 176 128 C 176 96 168 80 152 80 H 80 Z" 
+    fill="#000000" 
+  />
+  <!-- Inner T-Slash Cutout -->
+  <path 
+    d="M 104 104 H 152 V 128 H 136 V 152 H 120 V 128 H 104 V 104 Z" 
+    fill="#F59E0B" 
+  />
+</svg>

@@ -9,7 +9,7 @@ export default function HomePage() {
       <section className="relative bg-stone-900 text-stone-100 py-24 px-6">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <span className="text-xs font-bold tracking-widest text-amber-500 uppercase">
-            Deutronomy Shop • Village Thrift & Restoration
+            Deuteronomy Shop • Village Thrift & Restoration
           </span>
           <h1 className="font-display text-4xl md:text-6xl font-black tracking-tight uppercase leading-none">
             Step Into Comfort. <br />

@@ -58,7 +58,6 @@ export default function AdminLoginPage() {
       return
     }
 
-    // 4. Force hard client sync to ensure Server Components receive the auth cookie
     router.replace('/admin/inventory')
     router.refresh()
   }
@@ -67,9 +66,6 @@ export default function AdminLoginPage() {
     <main className="min-h-screen bg-stone-50 flex items-center justify-center p-6 text-stone-900">
       <div className="w-full max-w-sm bg-white border border-stone-200 rounded-2xl p-8 shadow-sm space-y-6">
         <div className="space-y-1 text-center">
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
-            Admin Vault
-          </span>
           <h1 className="font-display font-black text-2xl uppercase tracking-tight text-stone-900 pt-2">
             Staff Sign In
           </h1>

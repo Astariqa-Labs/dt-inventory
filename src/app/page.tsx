@@ -42,7 +42,7 @@ export default function HomePage() {
           <div className="w-10 h-10 bg-amber-100 text-amber-900 rounded-lg flex items-center justify-center">
             <Footprints className="w-5 h-5 text-amber-800" />
           </div>
-          <h3 className="font-display font-bold text-lg uppercase tracking-tight">Curated Clarks Thrift</h3>
+          <h3 className="font-display font-bold text-lg uppercase tracking-tight">Clarks Kenya</h3>
           <p className="text-xs text-stone-600 leading-relaxed">
             Unique, single-pair finds checked for genuine suede, solid soles, and original craftsmanship.
           </p>
@@ -74,8 +74,13 @@ export default function HomePage() {
           <p className="text-xs text-stone-600 leading-relaxed">
             Every pair is individually inspected for genuine crepe soles, pristine suede texture, and structural integrity.
           </p>
-          <Link href="/products" className="inline-block text-xs font-bold text-amber-700 hover:underline">
-            Learn Our Process →
+          <Link
+              href="https://www.youtube.com/@deuteronomyshop"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-xs font-bold text-amber-700 hover:underline"
+            >
+            Watch Restorations on YouTube →
           </Link>
         </div>
       </section>

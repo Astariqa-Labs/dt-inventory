@@ -40,7 +40,9 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group bg-white border border-stone-200 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/60 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer"
+      className={`group bg-white border border-stone-200 rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-sm cursor-pointer ${
+        isSold ? 'opacity-85 hover:border-stone-400' : 'hover:border-amber-500/60 hover:shadow-md'
+      }`}
     >
       <div>
         {/* Main Image Container */}
@@ -51,7 +53,9 @@ export default function ProductCard({ product }: { product: Product }) {
               alt={product.title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              className={`object-cover transition-transform duration-500 ${
+                isSold ? 'grayscale contrast-125' : 'group-hover:scale-105'
+              }`}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-stone-400 text-xs uppercase font-mono">
@@ -60,15 +64,15 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
 
           {/* Condition Badge */}
-          <span className="absolute top-3 left-3 bg-stone-900/80 backdrop-blur-md text-stone-100 border border-stone-800 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">
+          <span className="absolute top-3 left-3 z-10 bg-stone-900/80 backdrop-blur-md text-stone-100 border border-stone-800 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">
             {formatCondition(product.condition)}
           </span>
 
-          {/* Sold Overlay */}
+          {/* Sold Overlay Banner */}
           {isSold && (
-            <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[2px] flex items-center justify-center">
-              <span className="text-xs font-black uppercase tracking-widest text-white bg-red-600/90 px-3 py-1 rounded-lg">
-                Sold Out
+            <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-[1px] flex items-center justify-center">
+              <span className="text-xs font-black uppercase tracking-widest text-white bg-stone-900/90 border border-stone-700 px-3.5 py-1.5 rounded-lg shadow-lg">
+                Claimed / Sold Out
               </span>
             </div>
           )}
@@ -77,10 +81,14 @@ export default function ProductCard({ product }: { product: Product }) {
         {/* Details & Pricing */}
         <div className="p-5 space-y-2">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-display font-bold text-base text-stone-900 leading-snug group-hover:text-amber-700 transition">
+            <h3 className={`font-display font-bold text-base leading-snug transition ${
+              isSold ? 'text-stone-600 line-through' : 'text-stone-900 group-hover:text-amber-700'
+            }`}>
               {product.title}
             </h3>
-            <span className="font-mono font-black text-amber-700 text-base whitespace-nowrap">
+            <span className={`font-mono font-black text-base whitespace-nowrap ${
+              isSold ? 'text-stone-400 line-through' : 'text-amber-700'
+            }`}>
               {formatPriceKES(product.price)}
             </span>
           </div>
@@ -101,8 +109,12 @@ export default function ProductCard({ product }: { product: Product }) {
 
       {/* Action Footer */}
       <div className="p-5 pt-0">
-        <div className="w-full py-3 bg-stone-100 group-hover:bg-amber-600 text-stone-800 group-hover:text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition text-center shadow-sm">
-          {isSold ? 'View Details' : 'VIEW →'}
+        <div className={`w-full py-3 font-extrabold text-xs uppercase tracking-wider rounded-xl transition text-center shadow-sm ${
+          isSold
+            ? 'bg-stone-200 text-stone-600 group-hover:bg-stone-300'
+            : 'bg-stone-100 group-hover:bg-amber-600 text-stone-800 group-hover:text-white'
+        }`}>
+          {isSold ? 'Sold Out — View Archive' : 'VIEW →'}
         </div>
       </div>
     </Link>

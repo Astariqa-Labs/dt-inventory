@@ -2,15 +2,19 @@ import { createClient } from '@/lib/supabase/server'
 import ProductCard from './ProductCard'
 import Link from 'next/link'
 
+export const revalidate = 0
+
 export default async function ProductsPage() {
   const supabase = await createClient()
+
   const { data: products } = await supabase
     .from('products')
     .select('*')
-    .eq('status', 'AVAILABLE')
+    .order('status', { ascending: true })
     .order('created_at', { ascending: false })
 
-  const productCount = products?.length || 0
+  const totalCount = products?.length || 0
+  const availableCount = products?.filter((p) => p.status === 'AVAILABLE').length || 0
 
   return (
     <main className="min-h-screen bg-stone-50 text-stone-900 py-12 px-6">
@@ -24,7 +28,7 @@ export default async function ProductsPage() {
                 Village Thrift
               </span>
               <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
-                {productCount} {productCount === 1 ? 'Pair' : 'Pairs'} Available
+                {availableCount} Available • {totalCount} Total Drops
               </span>
             </div>
             <h1 className="font-display text-3xl md:text-5xl font-black tracking-tight uppercase text-stone-900">
@@ -38,7 +42,7 @@ export default async function ProductsPage() {
           {/* Exclusive Sourcing Action */}
           <div className="flex items-center gap-3 bg-white border border-stone-200 p-2 rounded-2xl shadow-sm shrink-0">
             <a
-              href="https://wa.me/?text=Hi%20Deuteronomy,%20I'm%20looking%20for%20a%20specific%20Clarks%20size/model%20from%20the%20next%20village%20drop."
+              href="https://wa.me/254780172385?text=Hi%20Deuteronomy,%20I'm%20looking%20for%20a%20specific%20Clarks%20size/model%20from%20the%20next%20village%20drop."
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition shadow-sm"
@@ -63,7 +67,7 @@ export default async function ProductsPage() {
             </div>
             <div className="space-y-1">
               <h3 className="font-display font-bold text-lg text-stone-900 uppercase tracking-tight">
-                No Pairs Available Right Now
+                No Pairs Listed Right Now
               </h3>
               <p className="text-xs text-stone-600 leading-relaxed max-w-xs mx-auto">
                 Our fresh batch of village finds is being authenticated. Check back soon or restore your existing pair.

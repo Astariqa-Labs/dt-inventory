@@ -10,7 +10,7 @@ const DYE_COLORS = [
   { id: 'CHARCOAL_GREY', name: 'Charcoal Grey', hex: '#333333' },
 ]
 
-const FIXED_SERVICE_AMOUNT = 3250 // KES
+const FIXED_SERVICE_AMOUNT = 1500 // KES
 const DEPOSIT_AMOUNT = Math.ceil(FIXED_SERVICE_AMOUNT / 2) // KES 1,625
 const BALANCE_DUE = FIXED_SERVICE_AMOUNT - DEPOSIT_AMOUNT  // KES 1,625
 
@@ -27,17 +27,28 @@ export default function SuedeDyeServicePage() {
     const form = e.currentTarget
     const formData = new FormData(form)
 
-    // Build plain JSON payload matching /api/orders/checkout requirements
+    const shoeModelNote = formData.get('shoeModelNote') as string
+
     const payload = {
       phone: formData.get('phone') as string,
       email: formData.get('email') as string,
       address: formData.get('address') as string,
-      shoeModelNote: formData.get('shoeModelNote') as string,
+      shoeModelNote: shoeModelNote,
       dyeColor: selectedColor,
       itemType: 'SUEDE_DYE_SERVICE',
       totalAmount: FIXED_SERVICE_AMOUNT,
       depositAmount: DEPOSIT_AMOUNT,
       balanceDue: BALANCE_DUE,
+
+      // Product payload fix
+      product: {
+        id: 'suede-dye-service',
+        title: `Suede Dye Restoration (${selectedColor})`,
+        price: FIXED_SERVICE_AMOUNT,
+        deposit: DEPOSIT_AMOUNT,
+        shoeModel: shoeModelNote,
+      },
+      product_id: 'suede-dye-service',
     }
 
     try {
@@ -76,11 +87,11 @@ export default function SuedeDyeServicePage() {
 
       const stkData = await stkRes.json()
 
-      if (stkData.ResponseCode === '0') {
+      if (stkData.ResponseCode === '0' || stkData.ResponseCode === 0) {
         setStatusMessage('PIN prompt sent! Check your phone to approve the deposit.')
         form.reset()
       } else {
-        setStatusMessage('Could not trigger M-Pesa. Please verify phone number.')
+        setStatusMessage(stkData.errorMessage || 'Could not trigger M-Pesa. Please verify phone number.')
       }
     } catch (err: any) {
       console.error('Service Checkout Error:', err)
@@ -179,19 +190,6 @@ export default function SuedeDyeServicePage() {
 
           {/* Contact & Payment Inputs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-stone-100">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
-                Email Address
-              </label>
-              <input
-                name="email"
-                type="email"
-                required
-                placeholder="you@example.com"
-                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-amber-600 focus:bg-white text-stone-900 placeholder-stone-400 transition"
-              />
-            </div>
-
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
                 M-Pesa Phone Number

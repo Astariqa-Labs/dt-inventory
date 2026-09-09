@@ -3,16 +3,32 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function createProductAction(formData: FormData) {
+// Helper to enforce admin auth on every server action
+async function verifyAdminSession() {
   const supabase = await createClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) {
+    throw new Error('Unauthorized access. Admin authentication required.')
+  }
+  return supabase
+}
 
-  const title = formData.get('title') as string
-  const description = formData.get('description') as string
-  const price = parseFloat(formData.get('price') as string)
-  const size = formData.get('size') as string
-  const color = formData.get('color') as string
-  const condition = formData.get('condition') as string
+export async function createProductAction(formData: FormData) {
+  const supabase = await verifyAdminSession()
+
+  const title = (formData.get('title') as string)?.trim()
+  const description = (formData.get('description') as string)?.trim()
+  const rawPrice = formData.get('price') as string
+  const price = parseFloat(rawPrice)
+  const size = (formData.get('size') as string)?.trim()
+  const color = (formData.get('color') as string)?.trim()
+  const condition = (formData.get('condition') as string)?.trim()
   const rawImages = formData.get('images') as string
+
+  // Strict field validation
+  if (!title || isNaN(price) || price < 0 || !size || !condition) {
+    return { success: false, error: 'Invalid or missing required fields.' }
+  }
 
   let images: string[] = []
   try {
@@ -27,19 +43,21 @@ export async function createProductAction(formData: FormData) {
     .insert([
       {
         title,
-        description,
+        description: description || null,
         price,
         size,
-        color,
+        color: color || null,
         condition,
         images,
         status: 'AVAILABLE',
       },
     ])
+    .select()
+    .single()
 
   if (error) {
     console.error('Database Error:', error.message)
-    throw new Error(`Failed to create product: ${error.message}`)
+    return { success: false, error: `Failed to create product: ${error.message}` }
   }
 
   revalidatePath('/admin/inventory')
@@ -49,7 +67,7 @@ export async function createProductAction(formData: FormData) {
 }
 
 export async function toggleProductStatus(id: string, currentStatus: string) {
-  const supabase = await createClient()
+  const supabase = await verifyAdminSession()
   const nextStatus = currentStatus === 'AVAILABLE' ? 'SOLD' : 'AVAILABLE'
 
   const { error } = await supabase
@@ -63,10 +81,11 @@ export async function toggleProductStatus(id: string, currentStatus: string) {
 
   revalidatePath('/admin/inventory')
   revalidatePath('/products')
+  revalidatePath(`/products/${id}`)
 }
 
 export async function deleteProduct(id: string) {
-  const supabase = await createClient()
+  const supabase = await verifyAdminSession()
 
   const { error } = await supabase
     .from('products')
@@ -79,4 +98,5 @@ export async function deleteProduct(id: string) {
 
   revalidatePath('/admin/inventory')
   revalidatePath('/products')
+  revalidatePath(`/products/${id}`)
 }

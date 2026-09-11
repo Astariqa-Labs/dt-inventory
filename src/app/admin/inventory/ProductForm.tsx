@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { uploadShoeImages } from '@/lib/supabase/storage'
 import { createProductAction } from './actions'
 
 export default function ProductForm() {
+  const router = useRouter()
   const [images, setImages] = useState<FileList | null>(null)
   const [uploading, setUploading] = useState(false)
 
@@ -22,6 +24,7 @@ export default function ProductForm() {
     setUploading(true)
 
     try {
+      // 1. Upload shoe images to Supabase Storage
       const imageUrls = await uploadShoeImages(Array.from(images))
 
       if (!imageUrls || imageUrls.length === 0) {
@@ -29,10 +32,21 @@ export default function ProductForm() {
       }
 
       formData.set('images', JSON.stringify(imageUrls))
-      await createProductAction(formData)
-      
+
+      // 2. Execute Server Action
+      const result = await createProductAction(formData)
+
+      // 3. Handle Server Action failures (validation, RLS, DB errors)
+      if (!result?.success) {
+        alert(`Error: ${result?.error || 'Failed to create product'}`)
+        return
+      }
+
+      // 4. Success cleanup & client router refresh
       formElement.reset()
       setImages(null)
+      router.refresh()
+      
       alert('Product created successfully!')
     } catch (err: any) {
       console.error('Submit error:', err.message)

@@ -34,7 +34,8 @@ function formatCondition(condition: string) {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-  const isSold = product.status === 'SOLD'
+  // Case-insensitive check to catch both 'sold' and 'SOLD'
+  const isSold = product.status?.toLowerCase() === 'sold'
   const primaryImage = product.images?.[0]
 
   return (

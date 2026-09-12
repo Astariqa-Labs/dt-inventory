@@ -61,7 +61,6 @@ export async function createProductAction(formData: FormData) {
       return { success: false, error: `Failed to create product: ${error.message}` }
     }
 
-    // Ensure path matches your route layout (e.g. /admin/inventory or /admin)
     revalidatePath('/admin/inventory')
     revalidatePath('/products')
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { CreditCard, Copy, Check } from 'lucide-react'
 
 const DYE_COLORS = [
   { id: 'NAVY_BLUE', name: 'Navy Blue', hex: '#1B263B' },
@@ -11,13 +12,20 @@ const DYE_COLORS = [
 ]
 
 const FIXED_SERVICE_AMOUNT = 1500 // KES
-const DEPOSIT_AMOUNT = Math.ceil(FIXED_SERVICE_AMOUNT / 2) // KES 1,625
-const BALANCE_DUE = FIXED_SERVICE_AMOUNT - DEPOSIT_AMOUNT  // KES 1,625
+const DEPOSIT_AMOUNT = Math.ceil(FIXED_SERVICE_AMOUNT / 2) // KES 750
+const BALANCE_DUE = FIXED_SERVICE_AMOUNT - DEPOSIT_AMOUNT  // KES 750
 
 export default function SuedeDyeServicePage() {
   const [selectedColor, setSelectedColor] = useState('NAVY_BLUE')
   const [submitting, setSubmitting] = useState(false)
   const [statusMessage, setStatusMessage] = useState('')
+  const [copiedAccount, setCopiedAccount] = useState(false)
+
+  const handleCopyAccount = () => {
+    navigator.clipboard.writeText('0708223674')
+    setCopiedAccount(true)
+    setTimeout(() => setCopiedAccount(false), 2000)
+  }
 
   async function handleCheckoutAndPay(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -102,7 +110,7 @@ export default function SuedeDyeServicePage() {
   }
 
   return (
-    <main className="min-h-screen bg-stone-50 text-stone-900 py-12 px-6 font-sans">
+    <main className="min-h-screen bg-stone-50 text-stone-900 py-12 px-4 sm:px-6 font-sans">
       <div className="max-w-3xl mx-auto space-y-10">
         
         {/* Header Section */}
@@ -126,22 +134,57 @@ export default function SuedeDyeServicePage() {
         </div>
 
         {/* Booking Form */}
-        <form onSubmit={handleCheckoutAndPay} className="bg-white border border-stone-200 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
+        <form onSubmit={handleCheckoutAndPay} className="bg-white border border-stone-200 rounded-2xl p-5 sm:p-8 space-y-6 shadow-sm">
           
-          {/* Price Breakdown Badge */}
-          <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-xs font-mono space-y-1">
-            <div className="flex justify-between text-stone-500">
-              <span>Full Service Fee:</span>
-              <span>KES {FIXED_SERVICE_AMOUNT.toLocaleString()}</span>
+          {/* Price & Equity Paybill Header Block */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* Price Breakdown Badge */}
+            <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-xs font-mono space-y-1.5 flex flex-col justify-center">
+              <div className="flex justify-between text-stone-500">
+                <span>Full Service Fee:</span>
+                <span>KES {FIXED_SERVICE_AMOUNT.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-amber-800 font-bold text-sm">
+                <span>Pay Now (50% Deposit):</span>
+                <span>KES {DEPOSIT_AMOUNT.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-stone-500">
+                <span>Balance on Delivery:</span>
+                <span>KES {BALANCE_DUE.toLocaleString()}</span>
+              </div>
             </div>
-            <div className="flex justify-between text-amber-800 font-bold">
-              <span>Pay Now (50% Deposit):</span>
-              <span>KES {DEPOSIT_AMOUNT.toLocaleString()}</span>
+
+            {/* Manual Equity Paybill Box */}
+            <div className="bg-amber-50/60 border border-amber-200/80 rounded-xl p-3.5 px-4 text-xs flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-amber-600/10 text-amber-800 rounded-lg border border-amber-600/20 shrink-0">
+                  <CreditCard className="w-4 h-4" />
+                </div>
+                <div className="text-left font-mono">
+                  <p className="text-[10px] text-amber-800/80 uppercase tracking-wider font-bold">Manual Equity Paybill</p>
+                  <p className="text-stone-800 font-bold">
+                    Paybill: <span className="text-amber-700">247247</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 border-l border-amber-200/80 pl-3">
+                <div className="text-left font-mono">
+                  <p className="text-[10px] text-amber-800/80 uppercase tracking-wider font-bold">Account No</p>
+                  <p className="text-amber-700 font-bold">0708223674</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCopyAccount}
+                  title="Copy Account Number"
+                  className="p-1.5 text-stone-500 hover:text-stone-900 bg-white border border-amber-200/80 hover:bg-amber-100 rounded-lg transition"
+                >
+                  {copiedAccount ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
-            <div className="flex justify-between text-stone-500">
-              <span>Balance on Delivery:</span>
-              <span>KES {BALANCE_DUE.toLocaleString()}</span>
-            </div>
+
           </div>
 
           {/* Shoe Model Note */}
@@ -233,7 +276,7 @@ export default function SuedeDyeServicePage() {
           >
             {submitting
               ? 'Processing Order...'
-              : `Pay KES ${DEPOSIT_AMOUNT.toLocaleString()} Deposit via M-Pesa`}
+              : `Pay KES ${DEPOSIT_AMOUNT.toLocaleString()} Deposit via M-Pesa STK`}
           </button>
         </form>
 

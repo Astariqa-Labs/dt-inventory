@@ -54,7 +54,18 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="text-stone-500 shrink-0">
-          <p>© {new Date().getFullYear()} Powered By Astariqa Labs. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} Powered By{' '}
+            <a
+              href="https://astariqa.netlify.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-stone-400 hover:text-amber-600 transition"
+            >
+              Astariqa Labs
+            </a>
+              . All rights reserved.
+          </p>
         </div>
 
       </div>

@@ -60,7 +60,7 @@ export default function HomePage() {
               href="/products"
               className="w-full sm:w-auto px-6 py-3.5 bg-amber-600 hover:bg-amber-500 active:scale-[0.98] text-white font-bold rounded-xl text-xs sm:text-sm transition shadow-lg shadow-amber-950/50 text-center"
             >
-              Shop Thrift Collection
+              Buy Here
             </Link>
             <Link
               href="/services/dye"
